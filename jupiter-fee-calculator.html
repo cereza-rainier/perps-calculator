@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jupiter Perpetuals Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00FFA3, #DC1FFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .calculator-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #00FFA3;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #e0e0e0;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #00FFA3;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .input-addon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .calculate-button {
+            width: 100%;
+            padding: 16px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #00FFA3, #DC1FFF);
+            color: #0f0f1e;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calculate-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 255, 163, 0.3);
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(0, 255, 163, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 163, 0.3);
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            padding-top: 16px;
+            margin-top: 8px;
+            border-top: 2px solid rgba(0, 255, 163, 0.5);
+        }
+
+        .result-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .result-value {
+            font-weight: bold;
+            color: #00FFA3;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .leverage-display {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 5px;
+            color: #DC1FFF;
+        }
+
+        .position-size-display {
+            background: rgba(0, 255, 163, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .position-size-display label {
+            color: #00FFA3;
+            margin-bottom: 5px;
+        }
+
+        .position-size-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00FFA3;
+        }
+
+        .position-size-formula {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+
+        .liquidation-results {
+            margin-top: 20px;
+            padding: 25px;
+            background: rgba(255, 68, 68, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 68, 68, 0.3);
+        }
+
+        .breakeven-results {
+            margin-top: 20px;
+            padding: 25px;
+            background: rgba(220, 31, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(220, 31, 255, 0.3);
+        }
+
+        .profit-results {
+            margin-top: 20px;
+            padding: 25px;
+            background: rgba(0, 255, 163, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 163, 0.2);
+        }
+
+        .section-title {
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .example-box {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Jupiter Perpetuals Calculator</h1>
+            <p>Calculate fees, liquidation, breakeven, and profit for perpetual trades</p>
+        </div>
+
+        <div class="calculator-section">
+            <div class="input-group">
+                <label for="collateral">Collateral (Margin)</label>
+                <div class="input-wrapper">
+                    <input type="number" id="collateral" placeholder="1000" step="0.01" value="1000" oninput="updatePositionSize()">
+                    <span class="input-addon">USD</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="leverage">Leverage</label>
+                <input type="range" id="leverage" min="1" max="100" value="10" oninput="updateLeverageDisplay()">
+                <div class="leverage-display" id="leverage-display">10x</div>
+            </div>
+
+            <div class="input-group position-size-display">
+                <label>Calculated Position Size</label>
+                <div class="position-size-value" id="calculated-position-size">$10,000.00</div>
+                <div class="position-size-formula">= Collateral × Leverage</div>
+            </div>
+
+            <div class="input-group">
+                <label for="asset">Asset</label>
+                <select id="asset">
+                    <option value="SOL">SOL</option>
+                    <option value="ETH">ETH</option>
+                    <option value="BTC">BTC</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="direction">Position Direction</label>
+                <select id="direction">
+                    <option value="long">Long</option>
+                    <option value="short">Short</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="entry-price">Entry Price</label>
+                <div class="input-wrapper">
+                    <input type="number" id="entry-price" placeholder="100" step="0.01" value="100">
+                    <span class="input-addon">USD</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="hold-duration">Hold Duration (hours)</label>
+                <input type="number" id="hold-duration" placeholder="24" step="1" value="24">
+            </div>
+
+            <button class="calculate-button" onclick="calculatePerpsFees()">Calculate All</button>
+
+            <!-- Fee Results -->
+            <div id="fee-results" class="results">
+                <div class="result-item">
+                    <span class="result-label">Your Collateral:</span>
+                    <span class="result-value" id="perps-collateral">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Position Size:</span>
+                    <span class="result-value" id="perps-position-size">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Open/Close Base Fee (0.06% each):</span>
+                    <span class="result-value" id="perps-base-fee">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Price Impact Fee (estimate):</span>
+                    <span class="result-value" id="perps-impact-fee">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Borrow Fee (hourly):</span>
+                    <span class="result-value" id="perps-hourly-borrow">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Total Borrow Fee:</span>
+                    <span class="result-value" id="perps-total-borrow">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Total Fees (Open + Hold + Close):</span>
+                    <span class="result-value" id="perps-total-fees">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Liquidation Analysis -->
+            <div id="liquidation-results" class="results liquidation-results">
+                <h3 class="section-title" style="color: #ff4444;">Liquidation Analysis</h3>
+                <div class="result-item">
+                    <span class="result-label">Initial Liquidation Price:</span>
+                    <span class="result-value" id="initial-liq-price" style="color: #ff4444;">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Liquidation Price (after fees):</span>
+                    <span class="result-value" id="adjusted-liq-price" style="color: #ff4444;">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Distance to Liquidation:</span>
+                    <span class="result-value" id="liq-distance" style="color: #ff9944;">0.00%</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Maintenance Margin:</span>
+                    <span class="result-value" id="maintenance-margin" style="color: #ff9944;">$0.00</span>
+                </div>
+                <div class="example-box">
+                    <p style="font-size: 0.9em; color: rgba(255, 255, 255, 0.7);">
+                        <strong>Warning:</strong> <span id="liq-warning">Liquidation occurs when collateral falls below 0.2% of position size</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Breakeven Analysis -->
+            <div id="breakeven-results" class="results breakeven-results">
+                <h3 class="section-title" style="color: #DC1FFF;">Breakeven Analysis</h3>
+                <div class="result-item">
+                    <span class="result-label">Price Move to Break Even:</span>
+                    <span class="result-value" id="breakeven-percent" style="color: #DC1FFF;">0.00%</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Price Move to Cover Fees (on collateral):</span>
+                    <span class="result-value" id="breakeven-collateral-percent" style="color: #DC1FFF;">0.00%</span>
+                </div>
+                <div class="example-box">
+                    <p style="font-size: 0.9em; color: rgba(255, 255, 255, 0.7);">
+                        <strong>Example:</strong> <span id="breakeven-example">If SOL is $100, it needs to move to $100.00 to break even</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Profit Calculator -->
+            <div id="profit-results" class="results profit-results">
+                <h3 class="section-title" style="color: #00FFA3;">Profit Calculator</h3>
+                <div class="input-group" style="margin-bottom: 15px;">
+                    <label for="price-move-percent" style="font-size: 0.9em;">Price Movement % <span id="price-direction-hint" style="color: rgba(255, 255, 255, 0.5);">(+ for up, - for down)</span></label>
+                    <input type="number" id="price-move-percent" placeholder="1" step="0.1" value="1" style="padding: 8px 12px;" oninput="calculateProfit()">
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Gross Profit (before fees):</span>
+                    <span class="result-value" id="gross-profit">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Net Profit (after fees):</span>
+                    <span class="result-value" id="net-profit" style="font-size: 1.2em;">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Return on Collateral:</span>
+                    <span class="result-value" id="roi-percent">0.00%</span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p><strong>Fee Breakdown:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Base fee: 0.06% on open and close</li>
+                    <li>Price impact: Increases with position size</li>
+                    <li>Borrow fees: Vary by asset and utilization (0.008-0.012% hourly typical)</li>
+                    <li>Network fees: Additional SOL gas fees apply</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>Liquidation Info:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Maintenance margin: 0.2% of position size</li>
+                    <li>Max leverage: 500x (but extremely risky)</li>
+                    <li>Liquidation price changes over time due to fees</li>
+                    <li>Monitor positions closely with leverage >10x</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>Tips:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Higher leverage = higher risk of liquidation</li>
+                    <li>Longer hold times = more borrow fees</li>
+                    <li>Add collateral to move liquidation price further away</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPerpData = {
+            collateral: 0,
+            positionSize: 0,
+            totalFees: 0,
+            leverage: 1,
+            entryPrice: 100,
+            direction: 'long'
+        };
+
+        // Initialize on load
+        window.onload = function() {
+            updatePositionSize();
+        };
+
+        function updateLeverageDisplay() {
+            const leverage = document.getElementById('leverage').value;
+            document.getElementById('leverage-display').textContent = leverage + 'x';
+            updatePositionSize();
+        }
+
+        function updatePositionSize() {
+            const collateral = parseFloat(document.getElementById('collateral').value) || 0;
+            const leverage = parseFloat(document.getElementById('leverage').value);
+            const positionSize = collateral * leverage;
+            document.getElementById('calculated-position-size').textContent = '$' + positionSize.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
+        function calculatePerpsFees() {
+            const collateral = parseFloat(document.getElementById('collateral').value) || 0;
+            const leverage = parseFloat(document.getElementById('leverage').value);
+            const positionSize = collateral * leverage;
+            const holdDuration = parseFloat(document.getElementById('hold-duration').value) || 0;
+            const asset = document.getElementById('asset').value;
+            const direction = document.getElementById('direction').value;
+            const entryPrice = parseFloat(document.getElementById('entry-price').value) || 100;
+            
+            // Store data for profit calculator
+            currentPerpData = {
+                collateral: collateral,
+                positionSize: positionSize,
+                totalFees: 0,
+                leverage: leverage,
+                entryPrice: entryPrice,
+                direction: direction
+            };
+            
+            // Base fee: 0.06% on open and close
+            const baseFee = positionSize * 0.0006;
+            const totalBaseFee = baseFee * 2; // Open + Close
+            
+            // Price impact fee estimation (simplified)
+            let impactFee = 0;
+            if (positionSize < 10000) {
+                impactFee = positionSize * 0.0001; // 0.01%
+            } else if (positionSize < 100000) {
+                impactFee = positionSize * 0.0003; // 0.03%
+            } else if (positionSize < 1000000) {
+                impactFee = positionSize * 0.0008; // 0.08%
+            } else {
+                impactFee = positionSize * 0.0015; // 0.15%
+            }
+            
+            // Borrow fee estimation (varies by asset and utilization)
+            const borrowRates = {
+                'SOL': 0.00012, // 0.012% per hour
+                'ETH': 0.00010, // 0.010% per hour
+                'BTC': 0.00008  // 0.008% per hour
+            };
+            
+            const hourlyBorrowRate = borrowRates[asset];
+            // Important: You only borrow the leveraged portion, not your collateral
+            const borrowedAmount = positionSize - collateral;
+            const hourlyBorrowFee = borrowedAmount * hourlyBorrowRate;
+            const totalBorrowFee = hourlyBorrowFee * holdDuration;
+            
+            const totalFees = totalBaseFee + (impactFee * 2) + totalBorrowFee;
+            currentPerpData.totalFees = totalFees;
+            
+            // Calculate liquidation price
+            const maintenanceMarginRate = 0.002; // 0.2% of position size
+            const maintenanceMargin = positionSize * maintenanceMarginRate;
+            
+            // Initial liquidation price (without fees)
+            let initialLiqPrice;
+            if (direction === 'long') {
+                // For longs: price needs to drop by (1/leverage - maintenance margin rate)
+                initialLiqPrice = entryPrice * (1 - (1/leverage) + maintenanceMarginRate);
+            } else {
+                // For shorts: price needs to rise by (1/leverage - maintenance margin rate)
+                initialLiqPrice = entryPrice * (1 + (1/leverage) - maintenanceMarginRate);
+            }
+            
+            // Adjusted liquidation price (accounting for fees)
+            // Fees reduce your effective collateral, bringing liquidation closer
+            const effectiveCollateral = collateral - totalFees;
+            const feeImpactOnLiquidation = (totalFees / positionSize) * entryPrice;
+            
+            let adjustedLiqPrice;
+            if (direction === 'long') {
+                adjustedLiqPrice = initialLiqPrice + feeImpactOnLiquidation;
+            } else {
+                adjustedLiqPrice = initialLiqPrice - feeImpactOnLiquidation;
+            }
+            
+            // Distance to liquidation
+            const liqDistance = Math.abs((entryPrice - adjustedLiqPrice) / entryPrice) * 100;
+            
+            // Update fee results
+            document.getElementById('perps-collateral').textContent = '$' + collateral.toFixed(2);
+            document.getElementById('perps-position-size').textContent = '$' + positionSize.toFixed(2);
+            document.getElementById('perps-base-fee').textContent = '$' + baseFee.toFixed(2);
+            document.getElementById('perps-impact-fee').textContent = '$' + impactFee.toFixed(2);
+            document.getElementById('perps-hourly-borrow').textContent = '$' + hourlyBorrowFee.toFixed(4);
+            document.getElementById('perps-total-borrow').textContent = '$' + totalBorrowFee.toFixed(2);
+            document.getElementById('perps-total-fees').textContent = '$' + totalFees.toFixed(2);
+            
+            // Update liquidation results
+            document.getElementById('initial-liq-price').textContent = '$' + initialLiqPrice.toFixed(2);
+            document.getElementById('adjusted-liq-price').textContent = '$' + adjustedLiqPrice.toFixed(2);
+            document.getElementById('liq-distance').textContent = liqDistance.toFixed(2) + '%';
+            document.getElementById('maintenance-margin').textContent = '$' + maintenanceMargin.toFixed(2);
+            
+            // Update warning based on leverage
+            let warningText = 'Liquidation occurs when collateral falls below 0.2% of position size ($' + maintenanceMargin.toFixed(2) + ').';
+            if (leverage > 50) {
+                warningText += ' ⚠️ High leverage - monitor position closely!';
+            }
+            document.getElementById('liq-warning').textContent = warningText;
+            
+            // Calculate breakeven percentage
+            const breakevenPercent = (totalFees / positionSize) * 100;
+            const breakevenOnCollateral = (totalFees / collateral) * 100;
+            
+            document.getElementById('breakeven-percent').textContent = breakevenPercent.toFixed(3) + '%';
+            document.getElementById('breakeven-collateral-percent').textContent = breakevenOnCollateral.toFixed(2) + '%';
+            
+            // Example calculation
+            const priceMove = entryPrice * (breakevenPercent / 100);
+            const breakEvenPrice = entryPrice + priceMove;
+            
+            document.getElementById('breakeven-example').textContent = 
+                'If ' + asset + ' is $' + entryPrice.toFixed(2) + ', it needs to move to $' + breakEvenPrice.toFixed(2) + ' (±$' + priceMove.toFixed(2) + ') to break even';
+            
+            // Show all results
+            document.getElementById('fee-results').classList.add('show');
+            document.getElementById('liquidation-results').classList.add('show');
+            document.getElementById('breakeven-results').classList.add('show');
+            document.getElementById('profit-results').classList.add('show');
+            
+            // Calculate initial profit estimate
+            calculateProfit();
+        }
+
+        function calculateProfit() {
+            if (currentPerpData.positionSize === 0) return;
+            
+            const priceMove = parseFloat(document.getElementById('price-move-percent').value) || 0;
+            let grossProfit;
+            
+            // Calculate profit based on direction
+            if (currentPerpData.direction === 'long') {
+                // For longs: profit when price goes up
+                grossProfit = currentPerpData.positionSize * (priceMove / 100);
+            } else {
+                // For shorts: profit when price goes down (inverse)
+                grossProfit = currentPerpData.positionSize * (-priceMove / 100);
+            }
+            
+            const netProfit = grossProfit - currentPerpData.totalFees;
+            const roi = (netProfit / currentPerpData.collateral) * 100;
+            
+            document.getElementById('gross-profit').textContent = '$' + grossProfit.toFixed(2);
+            document.getElementById('net-profit').textContent = '$' + netProfit.toFixed(2);
+            document.getElementById('net-profit').style.color = netProfit >= 0 ? '#00FFA3' : '#ff4444';
+            document.getElementById('roi-percent').textContent = roi.toFixed(2) + '%';
+            document.getElementById('roi-percent').style.color = roi >= 0 ? '#00FFA3' : '#ff4444';
+        }
+    </script>
+</body>
+</html>
