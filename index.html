@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Perpetuals Calculators</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+        }
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+        }
+        .calculator-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .calculator-card:hover {
+            transform: translateY(-5px);
+            border-color: #4ECDC4;
+            background: rgba(78, 205, 196, 0.05);
+        }
+        .calculator-card.jupiter:hover {
+            border-color: #00FFA3;
+            background: rgba(0, 255, 163, 0.05);
+        }
+        .calculator-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        .calculator-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .hyperliquid .calculator-title {
+            color: #4ECDC4;
+        }
+        .jupiter .calculator-title {
+            color: #00FFA3;
+        }
+        .calculator-description {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Perps Calculators</h1>
+        <p>Professional tools for perpetual futures trading</p>
+        
+        <div class="calculator-grid">
+            <a href="hyperliquid-perps-calculator.html" class="calculator-card hyperliquid">
+                <div class="calculator-icon">📊</div>
+                <div class="calculator-title">Hyperliquid</div>
+                <div class="calculator-description">Calculate fees, liquidation prices, and breakeven for Hyperliquid perpetuals</div>
+            </a>
+            
+            <a href="jupiter-fee-calculator.html" class="calculator-card jupiter">
+                <div class="calculator-icon">📈</div>
+                <div class="calculator-title">Jupiter</div>
+                <div class="calculator-description">Analyze fees, profits, and liquidation for Jupiter perpetual trades</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
